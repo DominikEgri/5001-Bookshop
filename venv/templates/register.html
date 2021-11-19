@@ -1,6 +1,6 @@
 {% extends 'template.html' %}
-{% block title%}Login{% endblock %}
-{% block login %}
+{% block title %}Stock{% endblock %}
+{% block content%}
     {% with messages = get_flashed_messages() %}
         {% if messages: %}
             {% for msg in messages %}
@@ -10,9 +10,8 @@
     {% endwith %}
     <form method="POST", class="form-register" action="#">
         <p>Name:</p>
-        <p><input type="text" name="nm"></p>
-        <p><input type="password" name="ps"></p>
-        <p><input type="submit" value="submit"></p>
+        <p><input type="text" name="name"></p>
+        <p><input type="password" name="password"></p>
+        <p><input type="submit" value="Register"></p>
     </form>
-<h1>{{text}}</h1>
 {% endblock %}

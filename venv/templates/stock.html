@@ -1,0 +1,18 @@
+{% extends 'template.html' %}
+{% block title %}Stock{% endblock %}
+{% block content %}
+      <table border = 1>
+         <thead>
+            <td>Name</td>
+             <td>Address</td>
+         </thead>
+          {% for row in rows %}
+            <tr>
+               <td>{{row[1]}}</td>
+               <td>{{row[2]}}</td>
+            </tr>
+          {% endfor %}
+      </table>
+      
+      <a href = "/">Go back to home page</a>
+{% endblock %}
