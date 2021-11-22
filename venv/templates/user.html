@@ -8,6 +8,37 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-<h1>{{text}}</h1>
+{% for row in rows %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+		<table class="table table-image">
+		  <thead>
+		    <tr>
+		      <th scope="col">Title</th>
+		      <th scope="col">Image</th>
+		      <th scope="col">Author</th>
+		      <th scope="col">Release date</th>
+          <th scope="col">More info</th>
+          <th scope="col">Buy</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    <tr>
+		      <th scope="row">{{row["title"]}}</th>
+		      <td class="w-25">
+			      <img src="/static/images/{{ row['image'] }}" class="img-fluid img-thumbnail" alt="No_image">
+		      </td>
+		      <td>{{row["author"]}}</td>
+		      <td>{{row["releaseDate"]}}</td>
+          <td><a href={{ url_for('user_bookview', code=row['title'])}}>More info</a></td>
+          <td>Buy</td>
+		    </tr>
+    </tbody>
+		</table>   
+    </div>
+  </div>
+</div>
+{% endfor %}
 
 {% endblock %}

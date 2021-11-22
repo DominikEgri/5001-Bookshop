@@ -1,0 +1,36 @@
+{% extends 'template.html' %}
+{% block title %}Admin{% endblock %}
+{% block content%}
+    {% with messages = get_flashed_messages() %}
+        {% if messages: %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="container">
+    <div class="row">
+        <form method="POST", class="form-register" action="#" enctype="multipart/form-data">
+            <p><input type="text" name="title" placeholder="title"></p>
+            <p><input type="text" name="author" placeholder="author"></p>
+            <p><input type="date" name="date" placeholder="date"></p>
+            <p><input type="text" name="ISBN13" placeholder="ISBN-13 number"></p>
+            <p><input type="text" name="description" placeholder="description"></p>
+            <p><input type="file" class="form-control" name="file" accept="image/*"></p>
+            <p><input type="range" min="1" max="100" value="50" name="price"></p>
+            <p><input type="number" name="quantity" placeholder="quantity"></p>
+            <p><input type="submit" value="Upload"></p>
+        </form>
+    </div>
+    </div>
+{% endblock %}
+
+The title of the book
+The author of the book
+A date picker set by the user
+ISBN-13 number primary-key
+The multiline book description
+A pricture of the front cover
+A slider allowing the trade price to be set (max 100)
+
+A slider allowing the quantity of books to be set (max 20)

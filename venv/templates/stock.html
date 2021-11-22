@@ -1,15 +1,24 @@
 {% extends 'template.html' %}
 {% block title %}Stock{% endblock %}
-{% block content %}
+{% block content %}0
+    {% with messages = get_flashed_messages() %}
+        {% if messages: %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
       <table border = 1>
          <thead>
-            <td>Name</td>
-             <td>Address</td>
+            <td>id</td>
+            <td>name</td>
+            <td>password</td>
          </thead>
           {% for row in rows %}
             <tr>
+               <td>{{row[0]}}</td>
                <td>{{row[1]}}</td>
-               <td>{{row[2]}}</td>
+
             </tr>
           {% endfor %}
       </table>

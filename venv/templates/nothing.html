@@ -1,0 +1,42 @@
+{% extends 'template.html' %}
+{% block title %}Admin{% endblock %}
+{% block content%}
+    {% with messages = get_flashed_messages() %}
+        {% if messages: %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+  {% for row in rows %}
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+        <table class="table table-image">
+          <thead>
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Author</th>
+              <th scope="col">Release date</th>
+              <th scope="col">Description</th>
+              <th scope="col">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">{{row["title"]}}</th>
+              <td>{{row["author"]}}</td>
+              <td>{{row["releaseDate"]}}</td>
+              <td>{{row["description"]}}</td>
+              <td>{{row["price"]}}</td>
+              <td><a href="/user">Go back</a></td>
+              <td>Buy</td>
+            </tr>
+        </tbody>
+        </table>   
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+{% endblock %}
