@@ -1,0 +1,22 @@
+{% extends 'template.html' %}
+{% block title %}Chart{% endblock %}
+{% block content%}
+    {% with messages = get_flashed_messages() %}
+        {% if messages: %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+<form action="{{url_for('addToChart_product')}}" method="POST">
+    <input type="hidden" name="product_id" value="{{id}}">
+    <button type="submit" class="btn btn-sm btn-warning" value="Add cart">Add cart</button>
+    <label for="">Quantity:</label>
+    <input type="number" name="quantity" id="" value="1", min="1" max="10">
+</form>
+<h1>{{id}}</h1>
+<h1>{{price}}</h1>
+
+
+{% endblock %}

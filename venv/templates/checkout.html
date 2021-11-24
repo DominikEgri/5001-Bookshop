@@ -1,0 +1,28 @@
+{% extends 'template.html' %}
+{% block title %}Register{% endblock %}
+{% block content%}
+    {% with messages = get_flashed_messages() %}
+        {% if messages: %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+  <table class="table table-sm">
+    <tr>
+      <form action="/pay" method="POST">
+        {% set paying_amount =  %}
+        <script
+          src="https://checkout.stripe.com/checkout.js"
+          class="stripe-button"
+          data-key="pk_test_51JySPLH0wY32hbDngjClJRA750Gz5R1ZPiOPLc5xwU7Q4LMK3BGW5q6EWlG4SFGwsGSnZTxGHtOvBeG9r6T4CzbF00NSacmOdL"
+          data-name="T-shirt"
+          data-description="Comfortable cotton t-shirt"
+          data-amount="500"
+          data-currency="gbp">
+        </script>
+      </form>
+    </tr>
+  </table>
+    
+{% endblock %}

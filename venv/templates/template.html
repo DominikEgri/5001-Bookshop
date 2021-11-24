@@ -25,7 +25,10 @@
             <a class="nav-link active" aria-current="page" href="{{url_for('home_page')}}">Books</a>
             <a class="nav-link" href="{{url_for('login_page')}}">Login</a>
             <a class="nav-link" href="{{url_for('logout_page')}}">Logout</a>
+            <a class="nav-link" href="{{url_for('user_page')}}">User</a>
             <a class="nav-link" href="{{url_for('register_page')}}">Register</a>
+            <a class="nav-link" href="#">Cart ({{session['Shoppingcart']|length}})</a>
+            <a class="nav-link" href="{{url_for('your_basket_page')}}">Cart</a>
           </div>
         </div>
       </div>

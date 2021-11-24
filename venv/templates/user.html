@@ -32,7 +32,7 @@
 		      <td>{{row["author"]}}</td>
 		      <td>{{row["releaseDate"]}}</td>
           <td><a href={{ url_for('user_bookview', code=row['title'])}}>More info</a></td>
-          <td>Buy</td>
+          <td><a href={{ url_for('chartSaveProductId', code=row['isbn13'])}}>Buy</a></td>
 		    </tr>
     </tbody>
 		</table>   

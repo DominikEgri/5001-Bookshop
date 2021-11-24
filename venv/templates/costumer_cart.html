@@ -1,0 +1,58 @@
+{% extends 'template.html' %}
+{% block title %}Check-out{% endblock %}
+{% block content%}
+    {% with messages = get_flashed_messages() %}
+        {% if messages: %}
+            {% for msg in messages %}
+                <p>{{msg}}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+  <div class="container">
+    <div class="row">
+      <table class="table table-sm">
+        <thead>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Book price</th>
+          <th>Total price</th>
+          <th>Delete</th>
+        </thead>
+        <tbody>
+          {% for key, item in session['Shoppingcart'].items() %}
+            <tr>
+              <td>{{item.name}}</td>
+              <td>{{item.quantity}}</td>
+              <td>{{item.price}}£</td>
+              <td>{{item.totalPrice}}£</td>
+              <td><a href="{{ url_for('delete_item', code=session['Shoppingcart'][key]['isbn13']) }}" class="btnRemoveAction">Remove</a></td>
+            </tr>
+          {% endfor %}
+          <tr>
+            <td>Postage cost: {{postage_cost}}£</td>
+            <td colspan="3">Without postage fee: {{basic_total_price}}£</td>
+            <td colspan="3">Total: {{total_price}}£</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  <table class="table table-sm">
+      <tr>
+        <form action="{{ url_for('payment_page') }}" method="POST">
+          {% set paying_amount = total_price.replace('.','') %}
+          <script
+            src="https://checkout.stripe.com/checkout.js"
+            class="stripe-button"
+            data-key="pk_test_51JySPLH0wY32hbDngjClJRA750Gz5R1ZPiOPLc5xwU7Q4LMK3BGW5q6EWlG4SFGwsGSnZTxGHtOvBeG9r6T4CzbF00NSacmOdL"
+            data-name="T-shirt"
+            data-description="Book shop"
+            data-amount="{{paying_amount}}"
+            data-currency="gbp">
+          </script>
+        </form>
+      </tr>
+    </table>
+  </div>
+
+{% endblock %}

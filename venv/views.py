@@ -1,15 +1,15 @@
-from flask import Flask, render_template, url_for, request, redirect, session, flash
-from datetime import timedelta
+from flask import Flask, render_template, url_for, request, redirect, session, flash, jsonify
+from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 import sqlite3
 from werkzeug.utils import secure_filename
 import os
+import stripe
 
 
 
 app = Flask(__name__)
-app.secret_key = "alma"
+app.secret_key = os.urandom(32)
 app.permanent_session_lifetime = timedelta(days = 3)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users_database.db'
@@ -21,17 +21,42 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 db = SQLAlchemy(app)
 
 
+def array_merge( dict1 , dict2 ):
+	if isinstance( dict1 , list ) and isinstance( dict2 , list ):
+		return dict1 + dict2
+	elif isinstance( dict1 , dict ) and isinstance( dict2 , dict ):
+		return dict( list( dict1.items() ) + list( dict2.items() ) )
+	elif isinstance( dict1 , set ) and isinstance( dict2 , set ):
+		return dict1.union( dict2 )
+	return False
 
-    
+PUBLIC_KEY = 'pk_test_51JySPLH0wY32hbDngjClJRA750Gz5R1ZPiOPLc5xwU7Q4LMK3BGW5q6EWlG4SFGwsGSnZTxGHtOvBeG9r6T4CzbF00NSacmOdL'
+SECRET_KEY = 'sk_test_51JySPLH0wY32hbDn50tqqP9ojorUy2HTfb3V1qqFvdzhF6lfInfEwefOJT29j6T5WzqQpWspc00vSuI61sDg1vLb00oOrkPpdA'
+
+@app.route('/payment_page', methods=["POST", "GET"])
+def payment_page():
+   with sqlite3.connect("database.db") as con:
+              con.row_factory = sqlite3.Row 
+              cur = con.cursor()
+              for key, value in session['Shoppingcart'].items():
+                cur.execute("UPDATE Books SET quantity=quantity + ? WHERE isbn13 = ?",(quantity, key,))
+              con.commit()
+              con.close()
+              
+              flash("The transaction was successfull!", "info")
+              session.clear()
+  
+              return redirect(url_for('thanks_page'))
+
+@app.route('/tanks')
+def thanks_page():
+  return render_template("thanks.html")
+
+
 @app.route('/')
 def home_page():
-    items = [
-        {"id" : 1, "name" : "phone", "price" : 500},
-        {"id" : 2, "name" : "laptop", "price" : 900},
-        {"id" : 3, "name" : "keyboard", "price" : 150}
-    ]
     
-    return render_template('home.html', title="Home",items=items)
+    return render_template('home.html', title="Home")
 
 
 
@@ -110,16 +135,126 @@ def user_bookview(code):
               cur = con.cursor()
               cur.execute("SELECT * FROM Books WHERE title = ?",(code,))
               rows = cur.fetchall()
-              return render_template('nothing.html', rows = rows)
+              return render_template('view_book.html', rows = rows)
               con.commit()
               con.close()
-      return render_template('nothing.html', isbn13 = code)
-        
+      return render_template('view_book.html', isbn13 = code)
+          
+@app.route('/chart/<string:code>')
+def chartSaveProductId(code):
+    session['product_id_session'] = code
+    return redirect(url_for('addToChart_product'))
 
+@app.route('/chart', methods=["POST", "GET"])   
+def addToChart_product():
+    if request.method == "POST":
+      try:
+        product_id = request.form.get('product_id')
+        quantity = int(request.form.get('quantity'))
+        if product_id and quantity:
+            flash("im in the main part")
+            con = sqlite3.connect('database.db')
+            cur = con.cursor();
+            cur.execute("SELECT * FROM Books WHERE isbn13=?;", (product_id,))
+            row = cur.fetchone()
+
+            dictItems = {product_id : {"isbn13" : row[0], "name" : row[1], "price" : row[6], "quantity" : quantity, "totalPrice": quantity * row[6]}}
+
+            totalQuantity = 0
+            totalPrice = 0
+
+            session.modified = True
+
+            if "Shoppingcart" in session:
+              if product_id in session['Shoppingcart']:
+                for key, value in session['Shoppingcart'].items():
+                  if key == row[0]:
+                    oldQuantity = session['Shoppingcart'][key]['quantity']
+                    totalQuantity = oldQuantity + quantity
+                    session['Shoppingcart'][key]['quantity'] = totalQuantity
+                    session['Shoppingcart'][key]['totalPrice'] = totalQuantity * row[6]
+              else:
+                session['Shoppingcart'] = array_merge(session['Shoppingcart'], dictItems)
+                
+              for key, value in session['Shoppingcart'].items():
+                itemQuantity = int(session['Shoppingcart'][key]['quantity'])
+                itemPrice = int(session['Shoppingcart'][key]['totalPrice'])
+                totalQuantity += itemQuantity
+                totalPrice += itemPrice * row[6]
+            else:
+              session['Shoppingcart'] = dictItems
+              totalQuantity += quantity
+              totalPrice += quantity * row[6]
+
+              session['totalQuantity'] = totalQuantity
+              session['totalPrice'] = totalPrice
+
+              return render_template("chart.html", id = session['product_id_session'])
+        else:
+              flash("Something went wrong!")
+      except Exception as e:
+        print(e)
+      finally:
+        cur.close()
+        con.close()
+    else:
+      return render_template("chart.html", id = session['product_id_session'])
+    return render_template("chart.html", id = session['product_id_session'])
+        
+@app.route('/YourBasket')
+def your_basket_page():
+    if "Shoppingcart" not in session:
+      return render_template("user.html")
+    total_price = 0
+    total_items = 0
+    for key, item in session['Shoppingcart'].items():
+      total_price += item['totalPrice']
+      total_items += item['quantity']
+    
+    if total_items == 1:
+      postage_cost = 3
+    else:
+      postage_cost = total_items + 2
+    total_price = total_price + postage_cost
+    total_price = ("%.2f" % float(total_price))
+    total_items = ("%.2f" % float(total_items))
+    return render_template("costumer_cart.html", basic_total_price = total_price, total_price = total_price, postage_cost = postage_cost)
+
+@app.route('/delete/<string:code>')
+def delete_item(code):
+	try:
+		totalPrice = 0
+		totalQuantity = 0
+		session.modified = True
+		
+		for item in session['Shoppingcart'].items():
+			if item[0] == code:				
+				session['Shoppingcart'].pop(item[0], None)
+				if 'Shoppingcart' in session:
+					for key, value in session['Shoppingcart'].items():
+						item_quantity = int(session['Shoppingcart'][key]['quantity'])
+						item_price = float(session['Shoppingcart'][key]['totalPrice'])
+						totalQuantity += item_quantity
+						totalPrice += item_price
+				break
+		
+		if totalQuantity == 0:
+			session.clear()
+		else:
+			session['totalQuantity'] = totalQuantity
+			session['totalPrice'] = totalPrice
+		return redirect(url_for('your_basket_page'))
+	except Exception as e:
+		print(e)
+  
+@app.route('/checkout', methods=["POST", "GET"])
+def checkout_page():
+  return render_template("checkout.html")
+  
 @app.route('/logout')
 def logout_page():
     flash("You have been logged out", "info")
-    session.pop("username", None)
+    session.clear()
     return redirect(url_for('login_page'))
 
 
@@ -157,12 +292,20 @@ def admin_upload_page():
             flash("Image upload was successfull!")
             try:
               with sqlite3.connect("database.db") as con:
+                  con.row_factory = sqlite3.Row 
                   cur = con.cursor()
-                  cur.execute('INSERT INTO Books(isbn13, title, author, releaseDate, description, image, price, quantity) VALUES(?, ?, ?, ?, ?, ? , ?, ?)',(isbn13, title, author, date_upload, description, image.filename, price, quantity))
-                  flash("Upload was successfull!")
-                  con.commit()
-                  con.close()
-                  flash("Upload was successfull!")
+                  cur.execute("SELECT * FROM Books WHERE isbn13 = ?",(isbn13,))
+                  result = cur.fetchall()
+                  if len(result) > 0:
+                    cur.execute("UPDATE Books SET quantity = quantity + ? WHERE isbn13 = ?",(int(quantity),isbn13,))
+                    flash("We add the item up to the existing stock!")
+                    return redirect(url_for("admin_upload_page"))
+                  else:
+                    cur.execute('INSERT INTO Books(isbn13, title, author, releaseDate, description, image, price, quantity) VALUES(?, ?, ?, ?, ?, ? , ?, ?)',(isbn13, title, author, date_upload, description, image.filename, price, quantity))
+                    flash("Upload was successfull!")
+                    con.commit()
+                    con.close()
+                    flash("Upload was successfull!")
             except:
               return redirect(url_for('admin_upload_page'))
         else:
@@ -188,3 +331,5 @@ def stock_page():
         cur.close()
         con.close()
     return render_template('stock.html')
+  
+  
