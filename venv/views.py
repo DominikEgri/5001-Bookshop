@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.secret_key = os.urandom(32)
 app.permanent_session_lifetime = timedelta(days = 3)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users_database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users_database.db'
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 #'website/venv/static/images'
@@ -21,14 +21,14 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 db = SQLAlchemy(app)
 
 
-def array_merge( dict1 , dict2 ):
-	if isinstance( dict1 , list ) and isinstance( dict2 , list ):
-		return dict1 + dict2
-	elif isinstance( dict1 , dict ) and isinstance( dict2 , dict ):
-		return dict( list( dict1.items() ) + list( dict2.items() ) )
-	elif isinstance( dict1 , set ) and isinstance( dict2 , set ):
-		return dict1.union( dict2 )
-	return False
+def array_merge( dict1 , dict2 ):						#addig two array together
+	if isinstance( dict1 , list ) and isinstance( dict2 , list ):		#if bot parameters are list
+		return dict1 + dict2						#add them together
+	elif isinstance( dict1 , dict ) and isinstance( dict2 , dict ):		#if bot parameters are dictionary
+		return dict( list( dict1.items() ) + list( dict2.items() ) )	#add them together
+	elif isinstance( dict1 , set ) and isinstance( dict2 , set ):		#if bot parameters are set
+		return dict1.union( dict2 )					#add them together
+	return False								#or return false
 
 PUBLIC_KEY = 'pk_test_51JySPLH0wY32hbDngjClJRA750Gz5R1ZPiOPLc5xwU7Q4LMK3BGW5q6EWlG4SFGwsGSnZTxGHtOvBeG9r6T4CzbF00NSacmOdL'
 SECRET_KEY = 'sk_test_51JySPLH0wY32hbDn50tqqP9ojorUy2HTfb3V1qqFvdzhF6lfInfEwefOJT29j6T5WzqQpWspc00vSuI61sDg1vLb00oOrkPpdA'
