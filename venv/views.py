@@ -39,7 +39,7 @@ def payment_page():
               con.row_factory = sqlite3.Row 
               cur = con.cursor()
               for key, value in session['Shoppingcart'].items():
-                cur.execute("UPDATE Books SET quantity=quantity + ? WHERE isbn13 = ?",(quantity, key,))
+                cur.execute("UPDATE Books SET quantity=quantity + ? WHERE isbn13 = ?",(quantity, key,))		#if user pay the update the quantity of the database correspondly the amount of books what the user bought.
               con.commit()
               con.close()
               
