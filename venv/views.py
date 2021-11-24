@@ -287,14 +287,13 @@ def admin_upload_page():
             image = request.files['file']		#
             price = request.form["price"]		#
             quantity = request.form["quantity"]		#
-            flash("Image upload was successfull!")
             try:
               with sqlite3.connect("database.db") as con:
                   con.row_factory = sqlite3.Row 
                   cur = con.cursor()
                   cur.execute("SELECT * FROM Books WHERE isbn13 = ?",(isbn13,))		#select book if it is exist
                   result = cur.fetchall()
-                  if len(result) > 0:		#if book exist in database
+                  if len(result) > 0:							#if book exist in database
                     cur.execute("UPDATE Books SET quantity = quantity + ? WHERE isbn13 = ?",(int(quantity),isbn13,))		#add quantity
                     flash("We add the item up to the existing stock!")
                     return redirect(url_for("admin_upload_page"))
