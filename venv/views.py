@@ -35,18 +35,25 @@ SECRET_KEY = 'sk_test_51JySPLH0wY32hbDn50tqqP9ojorUy2HTfb3V1qqFvdzhF6lfInfEwefOJ
 
 @app.route('/payment_page', methods=["POST", "GET"])
 def payment_page():
-   with sqlite3.connect("database.db") as con:
-              con.row_factory = sqlite3.Row 
-              cur = con.cursor()
-              for key, value in session['Shoppingcart'].items():
-                cur.execute("UPDATE Books SET quantity=quantity - ? WHERE isbn13 = ?",(quantity, key,))		#if user pay the update the quantity of the database correspondly the amount of books what the user bought.
-              con.commit()
-              con.close()
-              
-              flash("The transaction was successfull!", "info")
-              session.clear()
-  
-              return redirect(url_for('thanks_page'))
+      try:
+        with sqlite3.connect("database.db") as con:
+                  con.row_factory = sqlite3.Row 
+                  cur = con.cursor()
+                  for key, value in session['Shoppingcart'].items():
+                    cur.execute("UPDATE Books SET quantity=quantity + ? WHERE isbn13 = ?",(quantity, key,)) #if user pay the update the quantity of the database correspondly the amount of books what the user bought.
+                    con.commit()
+                  cur.close()
+                  con.close()
+                  flash("The transaction was successfull!", "info")
+                  session.clear()
+                  redirect(url_for('payment_page'))
+      except:
+          flash("The transaction was unsuccessful1")
+          return redirect(url_for('YourBasket'))
+      finally:
+          cur.close()
+          con.close()
+      return redirect(url_for('thanks_page'))
 
 @app.route('/tanks')
 def thanks_page():
@@ -104,8 +111,7 @@ def register_page():
                 con.commit()										#commit the query
                 con.close()										#close connection
                 session.permanent = True
-                user = request.form["name"]
-                session["username"] = user
+                session["username"] = username
                 flash("You have been registered!", "info")
                 return redirect(url_for('user_page'))
         except:												#handling exceptions
@@ -245,11 +251,8 @@ def delete_item(code):
 	except Exception as e:
 		print(e)
   
-@app.route('/checkout', methods=["POST", "GET"])
-def checkout_page():
-  return render_template("checkout.html")
   
-@app.route('/logout')		#logut
+@app.route('/logout')		#logout
 def logout_page():
     flash("You have been logged out", "info")
     session.clear()				#clear the session
