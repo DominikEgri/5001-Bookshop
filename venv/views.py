@@ -130,6 +130,7 @@ def user_page():
         rows = cur.fetchall()	
         return render_template('user.html', title="User",rows=rows)		#sending the rows from the database to the user.html
     else:
+	flash("You are not logged in.")
         redirect(url_for('login_page'))						#Your are not logged in, redirect to login page
         
         
@@ -207,6 +208,8 @@ def addToChart_product():
         
 @app.route('/YourBasket')							#showing user cart
 def your_basket_page():
+     if request.method == "POST":
+      redirect(url_for('checkout_database'))
     if "Shoppingcart" not in session:						#if there is not any item in the shoppincart
       return render_template("user.html")					#go back to user.html
     total_price = 0
@@ -322,9 +325,9 @@ def stock_page():
         con = sqlite3.connect('database.db')
         con.row_factory = sqlite3.Row  
         cur = con.cursor();
-        cur.execute("SELECT name, password FROM Users")		#selecting specific columns
+        cur.execute("SELECT image, title, isbn13, quantity FROM Books")
         rows = cur.fetchall()
-        return render_template("stock.html", rows=rows)		#sending the rows to the webpage to appear them
+        return render_template("stock.html", rows=rows)
     except Exception as e:
         print(e)
     finally:
