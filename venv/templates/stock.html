@@ -10,18 +10,23 @@
     {% endwith %}
       <table border = 1>
          <thead>
-            <td>id</td>
-            <td>name</td>
-            <td>password</td>
+            <td>Title</td>
+            <td>Image</td>
+            <td>ISBN13 number</td>
+            <td>Quantity</td>
          </thead>
           {% for row in rows %}
             <tr>
-               <td>{{row[0]}}</td>
-               <td>{{row[1]}}</td>
+               <td scope="row">{{row["title"]}}</td>
+		          <td class="w-25">
+			          <img src="/static/images/{{ row['image'] }}" class="img-fluid img-thumbnail" alt="No_image">
+		          </td>
+               <td>{{row["isbn13"]}}</td>
+               <td>{{row["quantity"]}}</td>
 
             </tr>
-          {% endfor %}
-      </table>
+          </table>
+         {% endfor %}
       
       <a href = "/">Go back to home page</a>
 {% endblock %}
