@@ -21,13 +21,20 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav">
-            <a class="nav-link active" aria-current="page" href="{{url_for('home_page')}}">Books</a>
+            <a class="nav-link active" aria-current="page" href="{{url_for('home_page')}}">Home</a>
             <a class="nav-link" href="{{url_for('login_page')}}">Login</a>
             <a class="nav-link" href="{{url_for('logout_page')}}">Logout</a>
-            <a class="nav-link" href="{{url_for('user_page')}}">User</a>
-            <a class="nav-link" href="{{url_for('register_page')}}">Register</a>
-            <a class="nav-link" href="#">Cart ({{session['Shoppingcart']|length}})</a>
+            {% if session["username"] == "admin" %}
+              <a class="nav-link" href="{{url_for('admin_page_validation')}}">Add Stock</a>
+            <a class="nav-link" href="{{url_for('stock_page')}}">Stock Levels</a>
+            {% else %}
+              <a class="nav-link" href="{{url_for('user_page')}}">Books</a>
+            {% endif %}
+            {% if "username" not in session %}
+              <a class="nav-link" href="{{url_for('register_page')}}">Register</a>
+            {% endif %}
             <a class="nav-link" href="{{url_for('your_basket_page')}}">Cart</a>
+            <a class="nav-link" href="#" align="right" disabled>Item in Cart ({{session['Shoppingcart']|length}})</a>
           </div>
         </div>
       </div>
